@@ -29,6 +29,7 @@ export interface ToolSettings {
     protectedTools: string[]
     contextLimit: number | `${number}%`
     modelLimits?: Record<string, number | `${number}%`>
+    minTokenSavings?: number
 }
 
 export interface Tools {
@@ -120,6 +121,7 @@ export const VALID_CONFIG_KEYS = new Set([
     "tools.settings.protectedTools",
     "tools.settings.contextLimit",
     "tools.settings.modelLimits",
+    "tools.settings.minTokenSavings",
     "tools.distill",
     "tools.distill.permission",
     "tools.distill.showDistillation",
@@ -354,6 +356,21 @@ export function validateConfigTypes(config: Record<string, any>): ValidationErro
                     expected: "string[]",
                     actual: typeof tools.settings.protectedTools,
                 })
+            }
+            if (tools.settings.minTokenSavings !== undefined) {
+                if (typeof tools.settings.minTokenSavings !== "number") {
+                    errors.push({
+                        key: "tools.settings.minTokenSavings",
+                        expected: "number",
+                        actual: typeof tools.settings.minTokenSavings,
+                    })
+                } else if (tools.settings.minTokenSavings < 0) {
+                    errors.push({
+                        key: "tools.settings.minTokenSavings",
+                        expected: "non-negative number",
+                        actual: `${tools.settings.minTokenSavings}`,
+                    })
+                }
             }
             if (tools.settings.contextLimit !== undefined) {
                 const isValidNumber = typeof tools.settings.contextLimit === "number"
@@ -613,6 +630,7 @@ const defaultConfig: PluginConfig = {
             nudgeFrequency: 10,
             protectedTools: [...DEFAULT_PROTECTED_TOOLS],
             contextLimit: 100000,
+            minTokenSavings: undefined,
         },
         distill: {
             permission: "allow",
@@ -793,6 +811,7 @@ function mergeTools(
             ],
             contextLimit: override.settings?.contextLimit ?? base.settings.contextLimit,
             modelLimits: override.settings?.modelLimits ?? base.settings.modelLimits,
+            minTokenSavings: override.settings?.minTokenSavings ?? base.settings.minTokenSavings,
         },
         distill: {
             permission: override.distill?.permission ?? base.distill.permission,

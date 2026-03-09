@@ -1,12 +1,15 @@
-<instruction name=context_management_required>
-CRITICAL CONTEXT WARNING
-Your context window is filling with tool. Strict adherence to context hygiene is required.
+<instruction name=context_management_reminder>
+CONTEXT MAINTENANCE REMINDER
+This is a scheduled reminder, not an emergency. Your current task always takes precedence.
 
-PROTOCOL
-You should prioritize context management, but do not interrupt a critical atomic operation if one is in progress. Once the immediate step is done, you must perform context management.
+Do not interrupt an atomic operation in progress. Once your immediate step is done, consider whether context management would be beneficial.
 
-IMMEDIATE ACTION REQUIRED
-<distill>KNOWLEDGE PRESERVATION: If holding valuable raw data you POTENTIALLY will need in your task, use the `distill` tool. Produce a high-fidelity distillation to preserve insights - be thorough</distill>
-<compress>PHASE COMPLETION: If a phase is complete, use the `compress` tool to condense the entire sequence into a detailed summary</compress>
-<prune>NOISE REMOVAL: If you read files or ran commands that yielded no value, use the `prune` tool to remove them. If newer tools supersedes older ones, prune the old</prune>
+EVALUATE BEFORE ACTING
+Review the <prunable-tools> list (if present). Only IDs explicitly listed there are valid targets. If no list is present, skip context management entirely.
+
+<distill>DISTILL: If you have completed exploration outputs whose findings you have already absorbed and acted on, distill them into technical substitutes. Do NOT distill outputs from an active research or debugging phase — you still need the raw signal.</distill>
+<compress>COMPRESS: If the user has moved on to a new phase and prior conversation is fully resolved, compress the completed phase. Do NOT compress based on your own assessment that you are done — wait for user signals.</compress>
+<prune>PRUNE: If dead-end searches, failed commands, or superseded outputs are accumulating, batch them into a single prune call. A minimum token savings threshold may be configured — accumulate enough candidates to meet it.</prune>
+
+ANTI-LOOP CHECK: If you have already performed context management in your last 2 responses, STOP managing and focus on your task. A read-prune-read cycle means you are pruning things you still need.
 </instruction>

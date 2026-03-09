@@ -1,7 +1,7 @@
 Use this tool to distill relevant findings from a selection of raw tool outputs into preserved knowledge, in order to denoise key bits and parts of context.
 
 THE PRUNABLE TOOLS LIST
-A <prunable-tools> will show in context when outputs are available for distillation (you don't need to look for it). Each entry follows the format `ID: tool, parameter (~token usage)` (e.g., `20: read, /path/to/file.ts (~1500 tokens)`). You MUST select outputs by their numeric ID. THESE ARE YOUR ONLY VALID TARGETS.
+A <prunable-tools> will show in context when outputs are available for distillation. Each entry follows the format `ID: tool, parameter (~token usage)` (e.g., `20: read, /path/to/file.ts (~1500 tokens)`). You MUST select outputs by their numeric ID. THESE ARE YOUR ONLY VALID TARGETS. If an ID is not in the list, it is protected and cannot be distilled — do not guess at IDs.
 
 THE PHILOSOPHY OF DISTILLATION
 `distill` is your favored instrument for transforming raw tool outputs into preserved knowledge. This is not mere summarization; it is high-fidelity extraction that makes the original output obsolete.
@@ -10,15 +10,17 @@ Your distillation must be COMPLETE. Capture function signatures, type definition
 
 AIM FOR IMPACT. Distillation is most powerful when applied to outputs that contain signal buried in noise. A single line requires no distillation; a hundred lines of API documentation do. Make sure the distillation is meaningful.
 
-THE WAYS OF DISTILL
-`distill` when you have extracted the essence from tool outputs and the raw form has served its purpose.
-Here are some examples:
-EXPLORATION: You've read extensively and grasp the architecture. The original file contents are no longer needed; your understanding, synthesized, is sufficient.
-PRESERVATION: Valuable technical details (signatures, logic, constraints) coexist with noise. Preserve the former; discard the latter.
+DO NOT DISTILL
+- Outputs from an active research or exploration phase. You have not yet fully processed these findings — distilling destroys nuance you still need for upcoming decisions.
+- Background agent results you have not yet acted on. These are your research inputs, not waste.
+- Error messages, stack traces, build failures, or test output during debugging. You need exact text.
+- Files you plan to edit. You need exact line references.
+- Outputs where you are uncertain whether you will need the raw form again. Distillation is irreversible — if in doubt, keep it.
 
-Not everything should be distilled. Prefer keeping raw outputs when:
-PRECISION MATTERS: You will edit the file, grep for exact strings, or need line-accurate references. Distillation sacrifices precision for essence.
-UNCERTAINTY REMAINS: If you might need to re-examine the original, defer. Distillation is irreversible; be certain before you commit.
+WHEN TO DISTILL
+EXPLORATION COMPLETE: You've read extensively, grasped the architecture, and made your decisions. The original file contents are no longer needed; your understanding, synthesized, is sufficient.
+PRESERVATION: Valuable technical details (signatures, logic, constraints) coexist with noise. Preserve the former; discard the latter.
+IMPLEMENTATION PHASE: You are actively building and old research outputs are dead weight. Distill them to reclaim context for your current work.
 
 Before distilling, ask yourself: _"Will I need the raw output for upcoming work?"_ If you plan to edit a file you just read, keep it intact. Distillation is for completed exploration, not active work.
 

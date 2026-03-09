@@ -133,6 +133,25 @@ export async function executePruneOperation(
     }
 
     const pruneToolIds: string[] = validNumericIds.map((index) => toolIdList[index])
+
+    // Enforce minimum token savings threshold to prevent micro-pruning
+    const minSavings = config.tools.settings.minTokenSavings
+    if (minSavings && minSavings > 0) {
+        const estimatedSavings = getTotalToolTokens(state, pruneToolIds)
+        if (estimatedSavings < minSavings) {
+            logger.info(
+                `${toolName} rejected: estimated savings (~${estimatedSavings} tokens) below minimum threshold (${minSavings} tokens)`,
+            )
+            throw new Error(
+                `${toolName} rejected: estimated savings (~${estimatedSavings} tokens) is below the minimum threshold of ${minSavings} tokens. ` +
+                `You have three options: ` +
+                `(1) Wait for more turns to accumulate larger prunable outputs, then try again with more items. ` +
+                `(2) Include additional IDs from the <prunable-tools> list to meet the threshold. ` +
+                `(3) Skip pruning for now and continue with your actual task.`,
+            )
+        }
+    }
+
     const originMessageId =
         typeof toolCtx.messageID === "string" && toolCtx.messageID.length > 0
             ? toolCtx.messageID

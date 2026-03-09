@@ -143,6 +143,11 @@
                                 }
                             ]
                         },
+                        "minTokenSavings": {
+                            "type": "number",
+                            "description": "Minimum estimated token savings required for a prune/distill operation to proceed. If the total tokens of targeted items is below this threshold, the operation is rejected. Set to 0 or omit to disable.",
+                            "default": 0
+                        },
                         "modelLimits": {
                             "description": "Model-specific context limits by exact provider/model key. Examples: \"openai/gpt-5\", \"anthropic/claude-3-7-sonnet\", \"ollama/llama3.1\"",
                             "type": "object",

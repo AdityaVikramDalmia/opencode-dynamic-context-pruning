@@ -1,10 +1,11 @@
 <instruction name=context_limit_reached>
-CRITICAL CONTEXT LIMIT
-Your session context has exceeded the configured limit. Strict adherence to context compression is required.
+CONTEXT LIMIT REACHED
+Your session context has exceeded the configured threshold. Compression is recommended when a natural phase boundary exists.
 
-PROTOCOL
-You should prioritize context management, but do not interrupt a critical atomic operation if one is in progress. Once the immediate step is done, you must perform context management.
+Do not interrupt an atomic operation in progress. Finish your current step first.
 
-IMMEDIATE ACTION REQUIRED
-PHASE COMPLETION: If a phase is complete, use the `compress` tool to condense the entire sequence into a detailed summary
+ACTION
+If a completed phase of work exists (research concluded, implementation verified, exploration exhausted), use `compress` to collapse it into a dense technical summary. Good compress targets are conversation ranges where the user has clearly moved on to a different topic or task.
+
+Do NOT compress if work in that area is still active, you may need exact code or error messages from the range, or you are mid-sprint on related functionality.
 </instruction>
