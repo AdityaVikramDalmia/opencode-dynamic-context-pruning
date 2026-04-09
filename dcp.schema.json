@@ -123,6 +123,63 @@
             "default": [],
             "description": "Glob patterns for files that should be protected from pruning (e.g., '**/*.config.ts')"
         },
+        "tools": {
+            "type": "object",
+            "description": "Configuration for prune and distill tools",
+            "additionalProperties": false,
+            "properties": {
+                "prune": {
+                    "type": "object",
+                    "description": "Prune tool settings",
+                    "additionalProperties": false,
+                    "properties": {
+                        "permission": {
+                            "type": "string",
+                            "enum": ["ask", "allow", "deny"],
+                            "default": "allow",
+                            "description": "Permission mode for the prune tool (deny disables it)"
+                        }
+                    }
+                },
+                "distill": {
+                    "type": "object",
+                    "description": "Distill tool settings",
+                    "additionalProperties": false,
+                    "properties": {
+                        "permission": {
+                            "type": "string",
+                            "enum": ["ask", "allow", "deny"],
+                            "default": "allow",
+                            "description": "Permission mode for the distill tool (deny disables it)"
+                        }
+                    }
+                },
+                "settings": {
+                    "type": "object",
+                    "description": "Shared settings for prune and distill tools",
+                    "additionalProperties": false,
+                    "properties": {
+                        "protectedTools": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [],
+                            "description": "Additional tool names to protect from pruning/distilling via prune or distill tools"
+                        },
+                        "minTokenSavings": {
+                            "type": "number",
+                            "description": "Minimum estimated token savings required for a prune/distill operation to proceed. Operations below this threshold are rejected with guidance. Disabled when not set."
+                        }
+                    }
+                }
+            },
+            "default": {
+                "prune": { "permission": "allow" },
+                "distill": { "permission": "allow" },
+                "settings": { "protectedTools": [] }
+            }
+        },
         "compress": {
             "type": "object",
             "description": "Configuration for the unified compress tool",

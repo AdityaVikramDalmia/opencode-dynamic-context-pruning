@@ -68,8 +68,16 @@ export interface PruneMessagesState {
     nextRunId: number
 }
 
+export type PruneOriginSource = "prune" | "distill"
+
+export interface PruneOrigin {
+    source: PruneOriginSource
+    originMessageId: string
+}
+
 export interface Prune {
     tools: Map<string, number>
+    origins: Map<string, PruneOrigin>
     messages: PruneMessagesState
 }
 

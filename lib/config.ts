@@ -54,6 +54,17 @@ export interface ExperimentalConfig {
     customPrompts: boolean
 }
 
+export interface ToolsSettings {
+    protectedTools: string[]
+    minTokenSavings?: number
+}
+
+export interface ToolsConfig {
+    prune: { permission: Permission }
+    distill: { permission: Permission }
+    settings: ToolsSettings
+}
+
 export interface PluginConfig {
     enabled: boolean
     debug: boolean
@@ -64,6 +75,7 @@ export interface PluginConfig {
     turnProtection: TurnProtection
     experimental: ExperimentalConfig
     protectedFilePatterns: string[]
+    tools: ToolsConfig
     compress: CompressConfig
     strategies: {
         deduplication: Deduplication
@@ -79,6 +91,8 @@ const DEFAULT_PROTECTED_TOOLS = [
     "todowrite",
     "todoread",
     "compress",
+    "prune",
+    "distill",
     "batch",
     "plan_enter",
     "plan_exit",
@@ -102,6 +116,14 @@ export const VALID_CONFIG_KEYS = new Set([
     "experimental.allowSubAgents",
     "experimental.customPrompts",
     "protectedFilePatterns",
+    "tools",
+    "tools.prune",
+    "tools.prune.permission",
+    "tools.distill",
+    "tools.distill.permission",
+    "tools.settings",
+    "tools.settings.protectedTools",
+    "tools.settings.minTokenSavings",
     "commands",
     "commands.enabled",
     "commands.protectedTools",
@@ -659,6 +681,14 @@ const defaultConfig: PluginConfig = {
         customPrompts: false,
     },
     protectedFilePatterns: [],
+    tools: {
+        prune: { permission: "allow" },
+        distill: { permission: "allow" },
+        settings: {
+            protectedTools: [...DEFAULT_PROTECTED_TOOLS],
+            minTokenSavings: undefined,
+        },
+    },
     compress: {
         mode: "range",
         permission: "allow",
@@ -877,6 +907,33 @@ function mergeExperimental(
     }
 }
 
+function mergeTools(
+    base: PluginConfig["tools"],
+    override?: Partial<PluginConfig["tools"]>,
+): PluginConfig["tools"] {
+    if (!override) {
+        return base
+    }
+
+    return {
+        prune: {
+            permission: override.prune?.permission ?? base.prune.permission,
+        },
+        distill: {
+            permission: override.distill?.permission ?? base.distill.permission,
+        },
+        settings: {
+            protectedTools: [
+                ...new Set([
+                    ...base.settings.protectedTools,
+                    ...(override.settings?.protectedTools ?? []),
+                ]),
+            ],
+            minTokenSavings: override.settings?.minTokenSavings ?? base.settings.minTokenSavings,
+        },
+    }
+}
+
 function deepCloneConfig(config: PluginConfig): PluginConfig {
     return {
         ...config,
@@ -891,6 +948,14 @@ function deepCloneConfig(config: PluginConfig): PluginConfig {
         turnProtection: { ...config.turnProtection },
         experimental: { ...config.experimental },
         protectedFilePatterns: [...config.protectedFilePatterns],
+        tools: {
+            prune: { ...config.tools.prune },
+            distill: { ...config.tools.distill },
+            settings: {
+                protectedTools: [...config.tools.settings.protectedTools],
+                minTokenSavings: config.tools.settings.minTokenSavings,
+            },
+        },
         compress: {
             ...config.compress,
             modelMaxLimits: { ...config.compress.modelMaxLimits },
@@ -926,6 +991,7 @@ function mergeLayer(config: PluginConfig, data: Record<string, any>): PluginConf
         protectedFilePatterns: [
             ...new Set([...config.protectedFilePatterns, ...(data.protectedFilePatterns ?? [])]),
         ],
+        tools: mergeTools(config.tools, data.tools as any),
         compress: mergeCompress(config.compress, data.compress as CompressOverride),
         strategies: mergeStrategies(config.strategies, data.strategies as any),
     }

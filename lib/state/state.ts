@@ -1,4 +1,4 @@
-import type { SessionState, ToolParameterEntry, WithParts } from "./types"
+import type { SessionState, ToolParameterEntry, WithParts, PruneOrigin } from "./types"
 import type { Logger } from "../logger"
 import { applyPendingCompressionDurations } from "../compress/timing"
 import { loadSessionState, saveSessionState } from "./persistence"
@@ -71,6 +71,7 @@ export function createSessionState(): SessionState {
         pendingManualTrigger: null,
         prune: {
             tools: new Map<string, number>(),
+            origins: new Map<string, PruneOrigin>(),
             messages: createPruneMessagesState(),
         },
         nudges: {
@@ -110,6 +111,7 @@ export function resetSessionState(state: SessionState): void {
     state.pendingManualTrigger = null
     state.prune = {
         tools: new Map<string, number>(),
+        origins: new Map<string, PruneOrigin>(),
         messages: createPruneMessagesState(),
     }
     state.nudges = {

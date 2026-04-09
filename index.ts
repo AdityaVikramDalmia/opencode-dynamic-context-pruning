@@ -1,6 +1,7 @@
 import type { Plugin } from "@opencode-ai/plugin"
 import { getConfig } from "./lib/config"
 import { createCompressMessageTool, createCompressRangeTool } from "./lib/compress"
+import { createPruneTool, createDistillTool } from "./lib/tools"
 import {
     compressDisabledByOpencode,
     hasExplicitToolPermission,
@@ -38,7 +39,6 @@ const server: Plugin = (async (ctx) => {
 
     if (isSecureMode()) {
         configureClientAuth(ctx.client)
-        // logger.info("Secure mode detected, configured client authentication")
     }
 
     logger.info("DCP initialized", {
@@ -51,6 +51,14 @@ const server: Plugin = (async (ctx) => {
         logger,
         config,
         prompts,
+    }
+
+    const pruneToolContext = {
+        client: ctx.client,
+        state,
+        logger,
+        config,
+        workingDirectory: ctx.directory,
     }
 
     return {
@@ -86,6 +94,12 @@ const server: Plugin = (async (ctx) => {
                         ? createCompressMessageTool(compressToolContext)
                         : createCompressRangeTool(compressToolContext),
             }),
+            ...(config.tools.prune.permission !== "deny" && {
+                prune: createPruneTool(pruneToolContext),
+            }),
+            ...(config.tools.distill.permission !== "deny" && {
+                distill: createDistillTool(pruneToolContext),
+            }),
         },
         config: async (opencodeConfig) => {
             if (
@@ -107,6 +121,12 @@ const server: Plugin = (async (ctx) => {
             if (config.compress.permission !== "deny" && !config.experimental.allowSubAgents) {
                 toolsToAdd.push("compress")
             }
+            if (config.tools.prune.permission !== "deny" && !config.experimental.allowSubAgents) {
+                toolsToAdd.push("prune")
+            }
+            if (config.tools.distill.permission !== "deny" && !config.experimental.allowSubAgents) {
+                toolsToAdd.push("distill")
+            }
 
             if (toolsToAdd.length > 0) {
                 const existingPrimaryTools = opencodeConfig.experimental?.primary_tools ?? []
@@ -121,6 +141,20 @@ const server: Plugin = (async (ctx) => {
                 opencodeConfig.permission = {
                     ...permission,
                     compress: config.compress.permission,
+                } as typeof permission
+            }
+            if (!hasExplicitToolPermission(opencodeConfig.permission, "prune")) {
+                const permission = opencodeConfig.permission ?? {}
+                opencodeConfig.permission = {
+                    ...permission,
+                    prune: config.tools.prune.permission,
+                } as typeof permission
+            }
+            if (!hasExplicitToolPermission(opencodeConfig.permission, "distill")) {
+                const permission = opencodeConfig.permission ?? {}
+                opencodeConfig.permission = {
+                    ...permission,
+                    distill: config.tools.distill.permission,
                 } as typeof permission
             }
 
