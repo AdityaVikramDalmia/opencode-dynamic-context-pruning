@@ -180,6 +180,13 @@ export async function executePruneOperation(
 
     state.stats.pruneTokenCounter += getTotalToolTokens(state, pruneToolIds)
 
+    // Track operation counts
+    if (source === "prune") {
+        state.stats.pruneCount = (state.stats.pruneCount || 0) + 1
+    } else if (source === "distill") {
+        state.stats.distillCount = (state.stats.distillCount || 0) + 1
+    }
+
     await sendUnifiedNotification(
         client,
         logger,

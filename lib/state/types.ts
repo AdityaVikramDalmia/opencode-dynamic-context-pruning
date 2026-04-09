@@ -20,6 +20,9 @@ export interface ToolParameterEntry {
 export interface SessionStats {
     pruneTokenCounter: number
     totalPruneTokens: number
+    pruneCount: number
+    distillCount: number
+    compressCount: number
 }
 
 export interface PrunedMessageEntry {

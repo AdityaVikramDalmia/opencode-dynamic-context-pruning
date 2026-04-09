@@ -165,7 +165,7 @@
                                 "type": "string"
                             },
                             "default": [],
-                            "description": "Additional tool names to protect from pruning/distilling via prune or distill tools"
+                            "description": "Tool names that CANNOT be pruned or distilled. Outputs from these tools are immune to removal via prune/distill tools. Different from compress.protectedTools which preserves outputs IN summaries rather than blocking removal."
                         },
                         "minTokenSavings": {
                             "type": "number",
@@ -287,12 +287,17 @@
                         "type": "string"
                     },
                     "default": [],
-                    "description": "Tool names or wildcard patterns whose completed outputs should be appended to the compression summary. Supports glob wildcards: * matches any characters, ? matches a single character (e.g., \"mcp_*\", \"my_tool_?\")"
+                    "description": "Tool names whose completed outputs are PRESERVED (appended to summaries) during compression. Unlike tools.settings.protectedTools which blocks removal entirely, this list ensures tool outputs survive compression by embedding them in the summary. Supports glob wildcards."
                 },
                 "protectUserMessages": {
                     "type": "boolean",
                     "default": false,
                     "description": "When enabled, your messages are never lost during compression"
+                },
+                "minCompressSavings": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum estimated token savings required for a compress operation to proceed. Prevents micro-compressions that destroy recoverability for negligible savings. Disabled when not set."
                 }
             },
             "default": {

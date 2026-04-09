@@ -94,6 +94,26 @@ export function createCompressMessageTool(ctx: ToolContext): ReturnType<typeof t
                 })
             }
 
+            // Enforce minimum compress savings threshold
+            const minCompressSavings = ctx.config.compress.minCompressSavings
+            if (typeof minCompressSavings === "number" && minCompressSavings > 0) {
+                let totalOriginalTokens = 0
+                let totalSummaryTokens = 0
+                for (const { plan, summaryWithTools } of preparedPlans) {
+                    for (const tokens of plan.selection.messageTokenById.values()) {
+                        totalOriginalTokens += tokens
+                    }
+                    totalSummaryTokens += countTokens(summaryWithTools) + 25
+                }
+                const estimatedSavings = totalOriginalTokens - totalSummaryTokens
+                if (estimatedSavings < minCompressSavings) {
+                    throw new Error(
+                        `Compress rejected: estimated savings (~${estimatedSavings} tokens) is below the minimum threshold of ${minCompressSavings} tokens. ` +
+                            `Compress larger ranges or wait until more context accumulates.`,
+                    )
+                }
+            }
+
             const runId = allocateRunId(ctx.state)
 
             for (const { plan, summaryWithTools } of preparedPlans) {
@@ -130,6 +150,8 @@ export function createCompressMessageTool(ctx: ToolContext): ReturnType<typeof t
             }
 
             await finalizeSession(ctx, toolCtx, rawMessages, notifications, input.topic)
+
+            ctx.state.stats.compressCount = (ctx.state.stats.compressCount || 0) + 1
 
             return formatResult(plans.length, skippedIssues, skippedCount)
         },

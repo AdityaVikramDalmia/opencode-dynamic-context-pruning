@@ -26,6 +26,7 @@ export interface CompressConfig {
     nudgeForce: "strong" | "soft"
     protectedTools: string[]
     protectUserMessages: boolean
+    minCompressSavings?: number
 }
 
 export interface Commands {
@@ -144,6 +145,7 @@ export const VALID_CONFIG_KEYS = new Set([
     "compress.nudgeForce",
     "compress.protectedTools",
     "compress.protectUserMessages",
+    "compress.minCompressSavings",
     "strategies",
     "strategies.deduplication",
     "strategies.deduplication.enabled",
@@ -446,6 +448,22 @@ export function validateConfigTypes(config: Record<string, any>): ValidationErro
                     key: "compress.protectUserMessages",
                     expected: "boolean",
                     actual: typeof compress.protectUserMessages,
+                })
+            }
+
+            if (compress.minCompressSavings !== undefined && typeof compress.minCompressSavings !== "number") {
+                errors.push({
+                    key: "compress.minCompressSavings",
+                    expected: "number",
+                    actual: typeof compress.minCompressSavings,
+                })
+            }
+
+            if (typeof compress.minCompressSavings === "number" && compress.minCompressSavings < 0) {
+                errors.push({
+                    key: "compress.minCompressSavings",
+                    expected: "non-negative number (>= 0)",
+                    actual: `${compress.minCompressSavings}`,
                 })
             }
 
@@ -756,6 +774,7 @@ const defaultConfig: PluginConfig = {
         nudgeForce: "soft",
         protectedTools: [...COMPRESS_DEFAULT_PROTECTED_TOOLS],
         protectUserMessages: false,
+        minCompressSavings: undefined,
     },
     strategies: {
         deduplication: {
@@ -921,6 +940,7 @@ function mergeCompress(
         nudgeForce: override.nudgeForce ?? base.nudgeForce,
         protectedTools: [...new Set([...base.protectedTools, ...(override.protectedTools ?? [])])],
         protectUserMessages: override.protectUserMessages ?? base.protectUserMessages,
+        minCompressSavings: override.minCompressSavings ?? base.minCompressSavings,
     }
 }
 
@@ -1016,6 +1036,7 @@ function deepCloneConfig(config: PluginConfig): PluginConfig {
             modelMaxLimits: { ...config.compress.modelMaxLimits },
             modelMinLimits: { ...config.compress.modelMinLimits },
             protectedTools: [...config.compress.protectedTools],
+            minCompressSavings: config.compress.minCompressSavings,
         },
         strategies: {
             deduplication: {

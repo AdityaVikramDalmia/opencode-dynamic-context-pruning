@@ -82,6 +82,9 @@ export function createSessionState(): SessionState {
         stats: {
             pruneTokenCounter: 0,
             totalPruneTokens: 0,
+            pruneCount: 0,
+            distillCount: 0,
+            compressCount: 0,
         },
         compressionTiming: {
             startsByCallId: new Map<string, number>(),
@@ -122,6 +125,9 @@ export function resetSessionState(state: SessionState): void {
     state.stats = {
         pruneTokenCounter: 0,
         totalPruneTokens: 0,
+        pruneCount: 0,
+        distillCount: 0,
+        compressCount: 0,
     }
     state.toolParameters.clear()
     state.subAgentResultCache.clear()
@@ -197,6 +203,9 @@ export async function ensureSessionInitialized(
     state.stats = {
         pruneTokenCounter: persisted.stats?.pruneTokenCounter || 0,
         totalPruneTokens: persisted.stats?.totalPruneTokens || 0,
+        pruneCount: persisted.stats?.pruneCount || 0,
+        distillCount: persisted.stats?.distillCount || 0,
+        compressCount: persisted.stats?.compressCount || 0,
     }
 
     const applied = applyPendingCompressionDurations(state)
