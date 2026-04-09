@@ -172,6 +172,20 @@ export async function ensureSessionInitialized(
 
     state.prune.tools = loadPruneMap(persisted.prune.tools)
     state.prune.messages = loadPruneMessagesState(persisted.prune.messages)
+
+    // Restore prune/distill origin tracking
+    if (persisted.prune.origins && typeof persisted.prune.origins === "object") {
+        for (const [id, origin] of Object.entries(persisted.prune.origins)) {
+            if (
+                origin &&
+                typeof origin.source === "string" &&
+                typeof origin.originMessageId === "string"
+            ) {
+                state.prune.origins.set(id, origin as PruneOrigin)
+            }
+        }
+    }
+
     state.nudges.contextLimitAnchors = new Set<string>(persisted.nudges.contextLimitAnchors || [])
     state.nudges.turnNudgeAnchors = new Set<string>([
         ...state.nudges.turnNudgeAnchors,

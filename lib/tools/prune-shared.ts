@@ -135,7 +135,7 @@ export async function executePruneOperation(
 
     // Enforce minimum token savings threshold to prevent micro-pruning
     const minSavings = config.tools.settings.minTokenSavings
-    if (minSavings && minSavings > 0) {
+    if (typeof minSavings === "number" && minSavings > 0) {
         const estimatedSavings = getTotalToolTokens(state, pruneToolIds)
         if (estimatedSavings < minSavings) {
             logger.info(
@@ -204,5 +204,19 @@ export async function executePruneOperation(
     if (skippedIds.length > 0) {
         result += `\n\nNote: ${skippedIds.length} IDs were skipped (invalid, protected, already pruned, or missing metadata): ${skippedIds.join(", ")}`
     }
+
+    // Append distillation text so it's preserved in the tool response visible to the model
+    if (distillation && distillation.length > 0) {
+        const distilled: string[] = []
+        for (let i = 0; i < ids.length; i++) {
+            if (distillation[i] && !skippedIds.includes(ids[i])) {
+                distilled.push(distillation[i])
+            }
+        }
+        if (distilled.length > 0) {
+            result += "\n\n" + distilled.join("\n\n")
+        }
+    }
+
     return result
 }

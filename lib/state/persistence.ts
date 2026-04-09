@@ -8,7 +8,7 @@ import * as fs from "fs/promises"
 import { existsSync } from "fs"
 import { homedir } from "os"
 import { join } from "path"
-import type { CompressionBlock, PrunedMessageEntry, SessionState, SessionStats } from "./types"
+import type { CompressionBlock, PrunedMessageEntry, SessionState, SessionStats, PruneOrigin } from "./types"
 import type { Logger } from "../logger"
 import { serializePruneMessagesState } from "./utils"
 
@@ -24,6 +24,7 @@ export interface PersistedPruneMessagesState {
 
 export interface PersistedPrune {
     tools?: Record<string, number>
+    origins?: Record<string, PruneOrigin>
     messages?: PersistedPruneMessagesState
 }
 
@@ -90,6 +91,7 @@ export async function saveSessionState(
             sessionName: sessionName,
             prune: {
                 tools: Object.fromEntries(sessionState.prune.tools),
+                origins: Object.fromEntries(sessionState.prune.origins),
                 messages: serializePruneMessagesState(sessionState.prune.messages),
             },
             nudges: {

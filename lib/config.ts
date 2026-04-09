@@ -611,6 +611,61 @@ export function validateConfigTypes(config: Record<string, any>): ValidationErro
         }
     }
 
+    const tools = config.tools
+    if (tools !== undefined) {
+        if (typeof tools !== "object" || tools === null || Array.isArray(tools)) {
+            errors.push({
+                key: "tools",
+                expected: "object",
+                actual: typeof tools,
+            })
+        } else {
+            const validPermissions = ["ask", "allow", "deny"]
+
+            if (tools.prune?.permission !== undefined && !validPermissions.includes(tools.prune.permission)) {
+                errors.push({
+                    key: "tools.prune.permission",
+                    expected: '"ask" | "allow" | "deny"',
+                    actual: JSON.stringify(tools.prune.permission),
+                })
+            }
+
+            if (tools.distill?.permission !== undefined && !validPermissions.includes(tools.distill.permission)) {
+                errors.push({
+                    key: "tools.distill.permission",
+                    expected: '"ask" | "allow" | "deny"',
+                    actual: JSON.stringify(tools.distill.permission),
+                })
+            }
+
+            if (tools.settings !== undefined) {
+                if (tools.settings.protectedTools !== undefined && !Array.isArray(tools.settings.protectedTools)) {
+                    errors.push({
+                        key: "tools.settings.protectedTools",
+                        expected: "string[]",
+                        actual: typeof tools.settings.protectedTools,
+                    })
+                }
+
+                if (tools.settings.minTokenSavings !== undefined && typeof tools.settings.minTokenSavings !== "number") {
+                    errors.push({
+                        key: "tools.settings.minTokenSavings",
+                        expected: "number",
+                        actual: typeof tools.settings.minTokenSavings,
+                    })
+                }
+
+                if (typeof tools.settings.minTokenSavings === "number" && tools.settings.minTokenSavings < 0) {
+                    errors.push({
+                        key: "tools.settings.minTokenSavings",
+                        expected: "non-negative number (>= 0)",
+                        actual: `${tools.settings.minTokenSavings}`,
+                    })
+                }
+            }
+        }
+    }
+
     return errors
 }
 
